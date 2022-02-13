@@ -153,7 +153,7 @@
                     {!! UserPanel::footer_links(null, ['class'=>'align-items-center justify-content-center justify-content-lg-start']) !!}
                 </div>
             </div>{{-- .row --}}
-            @else 
+            @else
             <div class="row align-items-center justify-content-center">
                 <div class="col-lg-7">
                     {!! UserPanel::footer_links(null, ['class'=>'guttar-20px']) !!}

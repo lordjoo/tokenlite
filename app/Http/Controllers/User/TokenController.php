@@ -76,7 +76,7 @@ class TokenController extends Controller
         $pm_currency = PaymentMethod::Currency;
         $pm_active = PaymentMethod::where('status', 'active')->get();
         $token_prices = $tc->calc_token(1, 'price');
-        dd($token_prices);
+//        dd($token_prices);
         $is_price_show = token('price_show');
         $contribution = Transaction::user_contribution();
 

@@ -18,11 +18,14 @@ use Illuminate\Http\Request;
 use App\Notifications\ResetPassword;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 /**
  * @property mixed walletAddress
+ * @method static create(array $array)
+ * @method static where(string $string, $value)
  */
-class User extends Authenticatable // implements MustVerifyEmail
+class User extends Authenticatable implements JWTSubject // implements MustVerifyEmail
 {
     use Notifiable;
 
@@ -49,6 +52,8 @@ class User extends Authenticatable // implements MustVerifyEmail
         'password', 'remember_token',
     ];
 
+
+
     /**
      * Send the password reset notification.
      *
@@ -60,6 +65,19 @@ class User extends Authenticatable // implements MustVerifyEmail
         $this->notify(new ResetPassword($token));
     }
 
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+
+    public function create_referral_or_not($refer=0) {
+        Referral::create([ 'user_id' => $this->id, 'user_bonus' => 0, 'refer_by' => $refer, 'refer_bonus' => 0 ]);
+    }
     /**
      *
      * Relation with kyc
@@ -85,7 +103,7 @@ class User extends Authenticatable // implements MustVerifyEmail
     {
         return $this->belongsTo('App\Models\UserMeta', 'id', 'userId');
     }
-    
+
     /**
      *
      * Relation with meta
@@ -130,7 +148,7 @@ class User extends Authenticatable // implements MustVerifyEmail
      *
      * @version 1.0.0
      * @since 1.1
-     * @return self 
+     * @return self
      */
     public static function AdvancedFilter(Request $request)
     {

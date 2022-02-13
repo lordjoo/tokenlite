@@ -23,7 +23,8 @@
         "pragmarx/google2fa": "^5.0",
         "softnio/laravel-installer": "^1.0",
         "softnio/qr-code-generator": "^1.0",
-        "stripe/stripe-php": "^7.91"
+        "stripe/stripe-php": "^7.91",
+        "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",
