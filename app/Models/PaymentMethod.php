@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method static where(string $string, string $key)
+ */
 class PaymentMethod extends Model
 {
     /*
@@ -38,8 +41,8 @@ class PaymentMethod extends Model
      * @since 1.0
      */
     const Currency = [
-            'usd' => 'US Dollar', 
-            'eur' => 'Euro', 
+            'usd' => 'US Dollar',
+            'eur' => 'Euro',
             'gbp' => 'Pound Sterling',
             'cad' => 'Canadian Dollar',
             'aud' => 'Australian Dollar',
@@ -72,9 +75,9 @@ class PaymentMethod extends Model
             'clp' => 'Chilean Peso',
             'cop' => 'Colombian Peso',
             'jmd' => 'Jamaican Dollar',
-            'eth' => 'Ethereum', 
-            'btc' => 'Bitcoin', 
-            'ltc' => 'Litecoin', 
+            'eth' => 'Ethereum',
+            'btc' => 'Bitcoin',
+            'ltc' => 'Litecoin',
             'xrp' => 'Ripple',
             'xlm' => 'Stellar',
             'bch' => 'Bitcoin Cash',
@@ -95,7 +98,7 @@ class PaymentMethod extends Model
         ];
 
     const Timeout = 1;
-    
+
     public function __construct()
     {
         $auto_check = (60 * (int) get_setting('pm_automatic_rate_time', 60)); // 1 Hour
@@ -175,7 +178,7 @@ class PaymentMethod extends Model
         $check_time = get_setting('pm_exchange_auto_lastcheck', now()->subMinutes(10));
         $current_time = now();
         if (((strtotime($check_time) + ($between)) <= strtotime($current_time)) || $force == true) {
-            
+
             $exrate = self::automatic_rate();
             if (!empty($exrate)) {
                 Setting::updateValue('pmc_fx_' . 'exrates', json_encode($exrate));
@@ -202,7 +205,7 @@ class PaymentMethod extends Model
         if (serverOpenOrNot(self::getApiUrl()) && !empty(self::getApiData($base)) && empty($scheduler)) {
             try {
                 $response = $cl->request('GET', self::getApiUrl(), [
-                    'headers' => ['X-Api-Signature' => base64_encode(gdmn())], 
+                    'headers' => ['X-Api-Signature' => base64_encode(gdmn())],
                     'query' => array_merge(['access_key' => self::getAccessKey(), 'app' => app_info('key'), 'ver' => app_info('version')], self::getApiData($base))
                 ]);
                 if ($response->getStatusCode() == 200) {
@@ -228,7 +231,7 @@ class PaymentMethod extends Model
         } else {
             Setting::updateOrCreate(['field' => 'exratesapi_error_msg'], ['value' => 'Access key was not sepecified in application.' ]);
         }
-        
+
         if(empty($rates)) {
             $rates = get_setting('pmc_fx_exrates');
         }
@@ -258,7 +261,7 @@ class PaymentMethod extends Model
             return self::getLiveRates($base);
         });
     }
-    
+
     /**
      *
      * Get the data
@@ -360,7 +363,7 @@ class PaymentMethod extends Model
 
         if($output=='all') {
             return $get_currency;
-        } 
+        }
         return $currencies;
     }
 

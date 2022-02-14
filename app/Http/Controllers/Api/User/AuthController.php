@@ -164,12 +164,18 @@ class AuthController extends Controller
         }
         # check if user exists
         $user = User::where('email', request()->email)->first();
+
         if (!$user) {
             return response()->json(['message' => 'User does not exist'], 404);
         }
-        $response = $this->broker()->sendResetLink([request()->email,]);
+
+        $response = $this->broker()->sendResetLink(
+            request()->only('email')
+        );
+
+
         return $response == Password::RESET_LINK_SENT
-            ? response()->json(['message' => 'Reset link sent'], 200)
+            ? response()->json(['message' => 'Reset link sent'])
             : response()->json(['message' => 'Reset link could not be sent',$response], 500);
     }
 
