@@ -13,7 +13,7 @@ $image = (gws('welcome_img_hide', 0)==0) ? 'welcome.png' : '';
         <div class="col-lg-4">
             {!! UserPanel::user_balance_card($contribution, ['vers' => 'side', 'class'=> 'card-full-height']) !!}
         </div>
-        <div class="col-lg-4 col-md-6">
+        <div class="col-lg-4 col-md-6" user_token>
             {!! UserPanel::user_token_block('', ['vers' => 'buy']) !!}
         </div>
         <div class="col-lg-4 col-md-6">

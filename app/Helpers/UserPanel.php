@@ -1,6 +1,6 @@
 <?php
 /**
- * UserPanel Helper 
+ * UserPanel Helper
  *
  * This class for manage user panel data etc.
  *
@@ -27,7 +27,7 @@ class UserPanel
      */
     public static function user_info($data = null, $atttr = '')
     {
-        $user = (empty($data)) ? auth()->user() : $data; 
+        $user = (empty($data)) ? auth()->user() : $data;
         $atttr_def = array('id' => '', 'class' => '', 'vers' => '');
         $opt_atttr = parse_args($atttr, $atttr_def);
         extract($opt_atttr);
@@ -56,7 +56,7 @@ class UserPanel
      */
     public static function user_balance($data = null, $atttr = '')
     {
-        $user = (empty($data)) ? auth()->user() : $data; 
+        $user = (empty($data)) ? auth()->user() : $data;
         $atttr_def = array('id' => '', 'class' => '', 'vers' => '');
         $opt_atttr = parse_args($atttr, $atttr_def);
         extract($opt_atttr);
@@ -97,7 +97,7 @@ class UserPanel
         $base_out = '<li class="token-balance-sub"><span class="lead">' . ($base_con > 0 ? $base_con : '~') . '</span><span class="sub">' . strtoupper($base_cur) . '</span></li>';
 
         $cur1_out = $cur2_out = '';
-        if(gws('user_in_cur1', 'eth')!='hide') {
+        if(gws('user_in_cur1', 'eth') != 'hide') {
             $cur1 = gws('user_in_cur1', 'eth');
             $cur1_con = (gws('pmc_active_'.$cur1) == 1) ? to_num($data->$cur1, 'auto') : 0;
             $cur1_out = ($cur1 != $base_cur) ? '<li class="token-balance-sub"><span class="lead">' . ($cur1_con > 0 ? $cur1_con : '~') . '</span><span class="sub">' . strtoupper($cur1) . '</span></li>' : '';
@@ -159,14 +159,14 @@ class UserPanel
         $card2 .= '</div>
         </div>';
 
-        $return = ''; 
+        $return = '';
         $status = ucfirst(active_stage_status());
         if ($vers =='buy') {
             $return .= '<div class="card card-full-height"><div class="card-innr">';
             $return .= '<h6 class="card-title card-title-sm">'. active_stage()->name .'<span class="badge badge-success ucap">' . __($status) . '</span></h6>';
             $return .= '<h3 class="text-dark">1 ' . $_SYM . ' = ' . to_num($token_1price, 'max', ',', true) . ' ' . $_CUR .' <span class="d-block text-exlight ucap fs-12">1 '. $_CUR . ' = ' . to_num($token_1rate, 'max', ',', true) . ' ' . $token_ratec .'</span></h3>';
             $return .= '<div class="gaps-0-5x"></div><div class="d-flex align-items-center justify-content-between mb-0"><a href="'.route('user.token').'" class="btn btn-md btn-primary">'.__('Buy Token Now').'</a></div>';
-                
+
             $return .= '</div></div>';
         } else {
             $return .= '<div' . $g_id . ' class="token-information card card-full-height' . $g_cls . '">';
