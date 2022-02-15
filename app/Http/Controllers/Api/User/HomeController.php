@@ -149,11 +149,11 @@ class HomeController extends Controller
                         'percentage' => sale_percent(active_stage()),
                         'raised_amount'=> [
                             'title' => __('Raised Amount'),
-                            'amount' =>ico_stage_progress('raised', $sales_raised)
+                            'amount' => ico_stage_progress('raised', $sales_raised)
                         ],
                         'total_amount'=> [
                             'title' => __('Total Token'),
-                            'amount' =>ico_stage_progress('total', $sales_total)
+                            'amount' => ico_stage_progress('total', $sales_total)
                         ],
                     ],
                     'sales_state' => [
