@@ -159,5 +159,9 @@ class HomeController extends Controller
         return response()->json(compact('user', 'token_account', 'token_stages', 'user_modules'));
     }
 
+    public function account_update()
+    {
+        
+    }
 
 }
