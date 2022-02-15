@@ -2,8 +2,15 @@
 
 namespace App\Helpers;
 
+use App\Models\User;
+use Exception;
 use Illuminate\Routing\ResponseFactory;
+use Illuminate\Support\Str;
 
+/**
+ * @method ApiResponse withCards(array $cards)
+ * @method ApiResponse withUser(User $user)
+ */
 class ApiResponse
 {
 
@@ -116,4 +123,27 @@ class ApiResponse
     }
 
 
+    /**
+     * @throws Exception
+     */
+    public function __call($name, $arguments)
+    {
+       // get all class methods
+       $methods = get_class_methods($this);
+       // check if method exists
+       if (in_array($name, $methods)) {
+           // call method with arguments
+           return call_user_func_array([$this, $name], $arguments);
+       }elseif(Str::startsWith($name, 'with')){
+           $this->data[Str::snake(substr($name, 4))] = $arguments[0];
+           return $this;
+       }else{
+           throw new Exception("Method [$name] does not exist");
+       }
+    }
+
+    public function __get($name)
+    {
+       dd($name);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\User;
 
+use App\Helpers\ApiResponse;
 use App\Helpers\TokenCalculate as TC;
 use App\Http\Controllers\Controller;
 use App\Models\PaymentMethod;
@@ -21,11 +22,16 @@ use Illuminate\Support\Facades\Validator;
 
 class HomeController extends Controller
 {
+    // api_response
+    protected $response;
+
     /**
      * @throws APIException
      */
-    public function __construct()
+    public function __construct(ApiResponse $response)
     {
+        $this->response = $response;
+
         if( $this->hasKey() === false && !app()->runningInConsole()){
             throw new APIException("Provide valid access key", 401);
         }
@@ -55,11 +61,18 @@ class HomeController extends Controller
         $stage = active_stage();
         $contribution = Transaction::user_contribution();
         $tc = new \App\Helpers\TokenCalculate();
-        $active_bonus = $tc->get_current_bonus('active');
+//        $active_bonus = $tc->get_current_bonus('active');
 
         $base_cur = base_currency();
         $base_con = isset($contribution->$base_cur) ? to_num($contribution->$base_cur, 'auto')  : 0;
         $base_out =  ($base_con > 0 ? $base_con : '~ ') . strtoupper($base_cur);
+
+        $_CUR = base_currency(true);
+        $_SYM = token_symbol();
+        $base_currency = base_currency();
+        $token_1price = token_calc(1, 'price')->$base_currency;
+        $token_1rate = token_rate(1, token('default_in_userpanel', 'eth'));
+        $token_ratec = token('default_in_userpanel', 'ETH');
 
         if(gws('user_in_cur1', 'eth') != 'hide') {
             $cur1 = gws('user_in_cur1', 'eth');
@@ -79,7 +92,19 @@ class HomeController extends Controller
 
 
 
+        $sales_raised = (token('sales_raised')) ? token('sales_raised') : 'token';
+        $sales_total = (token('sales_total')) ? token('sales_total') : 'token';
+        $sales_caps = (token('sales_cap')) ? token('sales_cap') : 'token';
+        if(is_expired() || is_completed()) {
+            $sales_state = __('Our token sales has been finished. Thank you very much for your contribution.');
+        }elseif(is_upcoming()){
+            $sales_state = __('Sales Start in');
+        }else{
+            $sales_state = __('Sales End in');
+        }
+
         $cards = [
+
             'token_balance' => [
                 'title' => 'Token Balance',
                 'value' => to_num_token($user->tokenBalance) .' '. token('symbol'),
@@ -93,12 +118,61 @@ class HomeController extends Controller
             'stage'=>[
                 'title' => $stage->name,
                 'status' => __(ucfirst(active_stage_status())),
-                ''
-            ]
+                'convertor'=>[
+                    [
+                        'from'=> [
+                            'amount' => '1',
+                            'symbol' => $_SYM,
+                        ],
+                        'to'=> [
+                            'amount' => to_num($token_1price, 'max', ',', true),
+                            'symbol' => $_CUR,
+                        ],
+                    ],[
+                        'from'=> [
+                            'amount' => '1',
+                            'symbol' => $_CUR,
+                        ],
+                        'to'=> [
+                            'amount' => to_num($token_1rate, 'max', ',', true),
+                            'symbol' => $token_ratec,
+                        ],
+                    ],
+                ]
+            ],
+            'token_sales_progress'=>
+                (gws('user_sales_progress', 1) != 1)
+                ? null :[
+                    'title' => __('Token Sales Progress'),
+                    'progress_bar' => [
+                        'sales_caps' => $sales_caps,
+                        'percentage' => sale_percent(active_stage()),
+                        'raised_amount'=> [
+                            'title' => __('Raised Amount'),
+                            'amount' =>ico_stage_progress('raised', $sales_raised)
+                        ],
+                        'total_amount'=> [
+                            'title' => __('Total Token'),
+                            'amount' =>ico_stage_progress('total', $sales_total)
+                        ],
+                    ],
+                    'sales_state' => [
+                        'title' => __('Sales End In'),
+                        'start_date' => _date(active_stage()->end_date, 'Y/m/d H:i:s'),
+                        'end_date' => _date(active_stage()->start_date, 'Y/m/d H:i:s'),
+                        'sales_state' => $sales_state,
+                    ],
+
+                ]
+
         ];
 
+        return $this->response
+            ->withCards($cards)
+            ->withUser($user)
+            ->success()
+            ->return();
 
-        return response()->json(compact('cards') + compact('contribution'));
     }
 
     /**
