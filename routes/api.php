@@ -65,6 +65,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/', 'namespace' => 'Api\User']
 
     // profile
     Route::get('profile', 'ProfileController@index')->name('profile');
+    Route::post('profile/update', 'ProfileController@update_profile')->name('update');
 
 });
 
