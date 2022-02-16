@@ -5,7 +5,13 @@ namespace App\Http\Controllers\Api\User;
 use App\Helpers\ApiResponse;
 use App\Helpers\IcoHandler;
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\UserMeta;
+use App\Notifications\PasswordChange;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends Controller
@@ -53,5 +59,49 @@ class ProfileController extends Controller
             }
         }
         return $this->response->error(__('messages.update.warning'))->return();
+    }
+
+    public function change_password()
+    {
+        //todo
+        /*DONT FORGET TO MAKE PASSWORD VALIDATION!!!!!!*/
+        $request = request();
+        //validate data
+        $validator = Validator::make($request->all(), [
+            'old_password' => 'required|min:6',
+            'new_password' => 'required|min:6|confirmed',
+        ]);
+        if ($validator->fails()) {
+            $msg = __('messages.form.wrong');
+            if ($validator->errors()->all()) {
+                return $this->response->error($validator->errors())->return();
+            }
+        }
+        $user = $request->user();
+        if ($user) {
+            if (! Hash::check($request->input('old_password'), $user->password)) {
+                return $this->response->error(__('messages.password.old_err'))->return();
+            } else {
+                $userMeta = UserMeta::where('userId', $user->id)->first();
+                $userMeta->pwd_temp = Hash::make($request->input('new_password'));
+                $cd = Carbon::now();
+                $userMeta->email_expire = $cd->copy()->addMinutes(60);
+                $userMeta->email_token = str_random(65);
+                if ($userMeta->save()) {
+                    try {
+                        $user->notify(new PasswordChange($user, $userMeta));
+                        return $this->response->success(__('messages.password.changed'))->return();
+                    } catch (\Exception $e) {
+                        return $this->response->error(__('messages.email.password_change',
+                            ['email' => get_setting('site_email')]))->return();
+                    }
+                } else {
+                    return $this->response->error(__('messages.form.wrong'))->return();
+                }
+            }
+        } else {
+            return $this->response->error(__('messages.form.wrong'))->return();
+        }
+
     }
 }
