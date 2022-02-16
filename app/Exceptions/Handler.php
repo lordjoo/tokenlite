@@ -49,7 +49,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        // HTTP API Errors 
+        // HTTP API Errors
         if( $exception instanceof APIException ) {
             $json = [
                 'success' => false,
@@ -65,12 +65,14 @@ class Handler extends ExceptionHandler
         $migrations = $this->getMigrations();
         $dbMigrations = $this->getExecutedMigrations();
         $need_update = count($migrations) - count($dbMigrations);
-        
+
         if($request->ajax() || $request->wantsJson()){
             $response = [
-                'msg' => 'error', 
+                'msg' => 'error',
                 'message' => 'Something is wrong!',
-                'errors' => $exception->getMessage()
+                'errors' => $exception->getMessage(),
+                'line'=> $exception->getLine(),
+                'file'=> $exception->getFile(),
             ];
             return response()->json($response, 200, [], JSON_PRETTY_PRINT);
         }
@@ -92,7 +94,7 @@ class Handler extends ExceptionHandler
                 $need_update = count($migrations) - count($dbMigrations);
                 return response()->view('errors.db_error', compact('check_dt', 'need_update'));
             }
-            
+
         }
         if($exception instanceof \PDOException)
         {

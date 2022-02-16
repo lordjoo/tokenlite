@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 /**
  * @method ApiResponse withCards(array $cards)
  * @method ApiResponse withUser(User $user)
+ * @method ApiResponse withInfo(array[] $info)
  */
 class ApiResponse
 {
