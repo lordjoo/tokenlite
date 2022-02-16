@@ -9,7 +9,7 @@ $content_class = 'col-lg-8';
 $current_date = time();
 $upcoming = is_upcoming();
 
-$_b = 0; 
+$_b = 0;
 $bc = base_currency();
 $default_method = token_method();
 $symbol = token_symbol();
@@ -71,18 +71,18 @@ $decimal_max = (token('decimal_max')) ? token('decimal_max') : 0;
                                 <span class="pay-amount">{{ to_num($token_prices->$gt, 'max', ',') }} {{ strtoupper($gt) }}</span>
                                 @endif
                             </label>
-                        </div>       
+                        </div>
                     </div>
                     @endif
                     @endforeach
                 </div>
             </div>
-            @else 
+            @else
             <div class="token-currency-default payment-item-default">
                 <input class="pay-method" type="hidden" id="pay{{ base_currency() }}" name="paymethod" value="{{ base_currency() }}" checked>
             </div>
             @endif
-            
+
             <div class="card-head">
                 <h4 class="card-title">{{ __('Amount of contribute') }}</h4>
             </div>
@@ -92,7 +92,7 @@ $decimal_max = (token('decimal_max')) ? token('decimal_max') : 0;
             @php
             $calc = token('calculate');
             $input_hidden_token = ($calc=='token') ? '<input class="pay-amount" type="hidden" id="pay-amount" value="">' : '';
-            $input_hidden_amount = ($calc=='pay') ? '<input class="token-number" type="hidden" id="token-number" value="">' : ''; 
+            $input_hidden_amount = ($calc=='pay') ? '<input class="token-number" type="hidden" id="token-number" value="">' : '';
 
             $input_token_purchase = '<div class="token-pay-amount payment-get">'.$input_hidden_token.'<input class="input-bordered input-with-hint token-number" type="text" id="token-number" value="" min="'.$min_token.'" max="'.$stage->max_purchase.'"><div class="token-pay-currency"><span class="input-hint input-hint-sap payment-get-cur payment-cal-cur ucap">'.$symbol.'</span></div></div>';
             $input_pay_amount = '<div class="token-pay-amount payment-from">'.$input_hidden_amount.'<input class="input-bordered input-with-hint pay-amount" type="text" id="pay-amount" value=""><div class="token-pay-currency"><span class="input-hint input-hint-sap payment-from-cur payment-cal-cur pay-currency ucap">'.$method.'</span></div></div>';
@@ -102,7 +102,7 @@ $decimal_max = (token('decimal_max')) ? token('decimal_max') : 0;
             @endphp
             <div class="token-contribute">
                 <div class="token-calc">{!! $input_token_purchase.$input_pay_amount_num !!}</div>
-            
+
                 <div class="token-calc-note note note-plane token-note">
                     <div class="note-box">
                         <span class="note-icon">
@@ -255,8 +255,14 @@ $decimal_max = (token('decimal_max')) ? token('decimal_max') : 0;
 @push('header')
 <script>
     var access_url = "{{ route('user.ajax.token.access') }}";
-    var minimum_token = {{ $min_token }}, maximum_token ={{ $stage->max_purchase }}, token_price = {!! $token_price !!}, token_symbol = "{{ $symbol }}",
-    base_bonus = {!! $bonus !!}, amount_bonus = {!! $amount_bonus !!}, decimals = {"min":{{ $decimal_min }}, "max":{{ $decimal_max }} }, base_currency = "{{ base_currency() }}", base_method = "{{ $method }}";
+    var minimum_token = {{ $min_token }}, maximum_token ={{ $stage->max_purchase }},
+        token_price = {!! $token_price !!},
+        token_symbol = "{{ $symbol }}",
+        base_bonus = {!! $bonus !!},
+        amount_bonus = {!! $amount_bonus !!},
+        decimals = {"min":{{ $decimal_min }}, "max":{{ $decimal_max }} },
+        base_currency = "{{ base_currency() }}",
+        base_method = "{{ $method }}";
     var max_token_msg = "{{ __('Maximum you can purchase :maximum_token token per contribution.', ['maximum_token' => to_num($stage->max_purchase, 'max', ',')]) }}", min_token_msg = "{{ __('Enter minimum :minimum_token token and select currency!', ['minimum_token' => to_num($min_token, 'max', ',')]) }}";
 </script>
 @endpush

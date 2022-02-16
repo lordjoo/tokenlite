@@ -55,7 +55,7 @@ class HomeController extends Controller
      *
      * @return JsonResponse
      * @return void
-     *@since 1.0
+     * @since 1.0
      * @version 1.0.0
      */
     public function index()
@@ -185,15 +185,20 @@ class HomeController extends Controller
      * @version 1.0.0
      * @since 1.0
      */
-    public function contribute()
+    public function contribute(): JsonResponse
     {
 
         $stage = active_stage();
         $tc = new TC();
         $currencies = Setting::active_currency();
-        $currencies['base'] = base_currency();
+        $method = strtolower(token_method());
         $bonus = $tc->get_current_bonus(null);
         $bonus_amount = $tc->get_current_bonus('amount');
+        $amount_bonus = (!empty($bonus_amount)) ? $bonus_amount : [1=>0];
+
+        $decimal_min = (token('decimal_min')) ? token('decimal_min') : 0;
+        $decimal_max = (token('decimal_max')) ? token('decimal_max') : 0;
+
         $price = Setting::exchange_rate($tc->get_current_price());
         $minimum = $tc->get_current_price('min');
         $active_bonus = $tc->get_current_bonus('active');
@@ -204,6 +209,21 @@ class HomeController extends Controller
         $is_price_show = token('price_show');
         $contribution = Transaction::user_contribution();
 
+
+        $token_you_can_buy = collect($pm_currency)->filter(function ($name,$symbol) use ($method){
+            if(token('purchase_'.$symbol) == 1 || $method==$symbol){
+                return true;
+            }
+            return false;
+        })->map(function($item, $key)use($token_prices){
+            return [
+                'symbol' => $key,
+                'name' => $item,
+                'price' => to_num($token_prices->$key, 'max', ','),
+            ];
+        });
+
+
         if ($price <= 0 || $stage == null || count($pm_active) <= 0 || token_symbol() == '') {
             return response()->json([
                 'error' => 'Invalid request',
@@ -211,8 +231,43 @@ class HomeController extends Controller
             ], 400);
         }
 
-        return response()->json(compact('stage', 'currencies', 'bonus', 'bonus_amount', 'price', 'token_prices', 'is_price_show', 'minimum', 'active_bonus', 'pm_currency', 'contribution'));
+        $cards = [
+            'contributions_card' => [
+                'title' => __('Choose currency and calculate :SYMBOL token price', ['symbol' => token_symbol()]),
+                'description' => __('You can buy our :SYMBOL token using the below currency choices to become part of our project.', ['symbol' => token_symbol()]),
+                'cards' => [
+                    $token_you_can_buy,
+                ],
+            ],
+        ];
+        $min_token = ($minimum) ? $minimum : active_stage()->min_purchase;
+        $info = [
+            'max_purchase_token' => [
+                'amount'=> $stage->max_purchase,
+                'msg' => __('Maximum you can purchase :maximum_token token per contribution.', ['maximum_token' => to_num($stage->max_purchase, 'max', ',')])
+            ],
+            'min_purchase_token'=>[
+                'amount' => $min_token,
+                'msg' => __('Enter minimum :minimum_token token and select currency!', ['minimum_token' => to_num(to_num($min_token, 'max',','), 'max', ',')])
+            ],
+            'token_price'=>$price,
+            'token_symbol'=>token_symbol(),
+            "base_bonus_percentage" => $bonus,
+            "amount_bonus" =>  $amount_bonus,
+            "decimals" => ["min"=>$decimal_min, "max"=> $decimal_max ],
+            "base_currency" =>  base_currency(),
+            "base_method" => $method,
+        ];
+
+        return $this->response
+            ->withCards($cards)
+            ->withInfo($info)
+            ->success()
+            ->return();
+        //return response()->json(compact('stage', 'currencies', 'bonus', 'bonus_amount', 'price', 'token_prices', 'is_price_show', 'minimum', 'active_bonus', 'pm_currency', 'contribution'));
     }
+
+
 
     /**
      * Show the user account token management page.
@@ -535,5 +590,7 @@ class HomeController extends Controller
         }
         return back()->with([$ret['msg'] => $ret['message']]);
     }
+
+
 
 }
