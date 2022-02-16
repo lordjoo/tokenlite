@@ -26,7 +26,7 @@ class ProfileController extends Controller
             'name' => 'required|min:3',
             'email' => 'required|email',
             'dateOfBirth' => 'required|date_format:"m/d/Y"',
-            'nationality' => 'required,in:' . implode(',', $countries),
+            'nationality' => 'required|in:' . implode(',', $countries),
         ]);
 
         if ($validator->fails()) {
@@ -46,7 +46,10 @@ class ProfileController extends Controller
             $user_saved = $user->save();
 
             if ($user_saved) {
-                return $this->response->success(__('messages.update.success', ['what' => 'Account']))->return();
+                return $this->response->success(__('messages.update.success', ['what' => 'Account']))
+                ->setData(['user'=>$user])
+                ->return();
+
             }
         }
         return $this->response->error(__('messages.update.warning'))->return();
