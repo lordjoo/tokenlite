@@ -252,7 +252,7 @@ class HomeController extends Controller
             ],
             'token_price'=>$price,
             'token_symbol'=>token_symbol(),
-            "base_bonus" =>  $bonus,
+            "base_bonus_percentage" => $bonus,
             "amount_bonus" =>  $amount_bonus,
             "decimals" => ["min"=>$decimal_min, "max"=> $decimal_max ],
             "base_currency" =>  base_currency(),
