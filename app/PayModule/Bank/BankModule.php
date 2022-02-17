@@ -59,7 +59,8 @@ class BankModule implements PmInterface
                 </div></li>';
         return [
             'currency' => $this->check_currency(),
-            'html' => ModuleHelper::str2html($html)
+            'html' => ModuleHelper::str2html($html),
+            'pmData' => $pmData
         ];
     }
 
@@ -75,7 +76,7 @@ class BankModule implements PmInterface
 
     public function email_details($transaction){
         $bank = get_pm(self::SLUG);
-        
+
         $text = '';
         $text .= "<tr><td>Payment to Address</td><td>:</td><td>";
         $text .= (isset($bank->bank_account_name) && $bank->bank_account_name) ? "Account Name: <strong>". $bank->bank_account_name . "</strong><br>" : '';

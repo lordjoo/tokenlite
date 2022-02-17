@@ -53,7 +53,7 @@ class ApiResponse
         $this->message = "";
     }
 
-    public function success($message = "")
+    public function success($message = ""): ApiResponse
     {
         $this->message = $message;
         $this->status = 200;
@@ -94,7 +94,7 @@ class ApiResponse
         return $this;
     }
 
-    public function setError(array $array): ApiResponse
+    public function setError($array): ApiResponse
     {
         $this->error = $array;
         return $this;

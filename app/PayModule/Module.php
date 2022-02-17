@@ -130,6 +130,24 @@ class Module
         return ModuleHelper::view('views.payment', compact('methods', 'data', 'support', 'activeMethods'), false);
     }
 
+    public function get_methods($currency, $data): array
+    {
+        $methods = $support = $activeMethods = [];
+        foreach ($this->active_payment_methods as $item) {
+            $object = $this->getItemInstance($item);
+            $pm = get_pm(strtolower($item), true);
+            if(method_exists($object, 'show_action')){
+                $act = $object->show_action();
+                if(in_array(strtoupper($currency), $act['currency']) && $pm->status == 'active'){
+                    $methods[] = $act['pmData'];
+                    $support[$item] = $act['currency'];
+                    $activeMethods[] = $item;
+                }
+            }
+        }
+        return $methods;
+    }
+
     /**
      * Show the transaction details in transaction page
      * @version v1.0.0

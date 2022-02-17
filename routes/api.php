@@ -57,8 +57,8 @@ Route::group(['middleware' => 'api', 'prefix' => '/', 'namespace' => 'Api\User']
     Route::get('home', 'HomeController@index')->name('home');
 
 
-    Route::get('contribute', 'HomeController@contribute')->name('contribute');
-    Route::post('/contribute/access', 'User\TokenController@access');
+    Route::get('contribute', 'TokenController@index');
+    Route::post('contribute/access', 'TokenController@contribute_access');
 
 
     Route::get('balance', 'HomeController@mytoken_balance')->name('token.balance');

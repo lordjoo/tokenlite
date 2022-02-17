@@ -36,9 +36,11 @@ class ProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            if ($validator->errors()->hasAny(['name', 'email', 'dateOfBirth'])) {
-
-                return $this->response->error($validator->errors())->return();
+            if ($validator->fails()) {
+                return $this->response
+                    ->setError($validator->errors()->toArray())
+                    ->error('Invalid request',400)
+                    ->return();
             }
         }
 
@@ -72,10 +74,11 @@ class ProfileController extends Controller
             'new_password' => 'required|min:6|confirmed',
         ]);
         if ($validator->fails()) {
-            $msg = __('messages.form.wrong');
-            if ($validator->errors()->all()) {
-                return $this->response->error($validator->errors())->return();
-            }
+            if ($validator->fails()) {
+                return $this->response
+                    ->setError($validator->errors()->toArray())
+                    ->error('Invalid request',400)
+                    ->return();            }
         }
         $user = $request->user();
         if ($user) {

@@ -136,7 +136,10 @@ class ManualModule implements PmInterface
                 </div></li>';
         return [
             'currency' => $this->check_currency(),
-            'html' => ModuleHelper::str2html($html)
+            'html' => ModuleHelper::str2html($html),
+            'pmData' => $pmData
+
+
         ];
     }
 
@@ -311,7 +314,7 @@ class ManualModule implements PmInterface
                 }
             }
         }
-        
+
         if ($check_valid) {
             // if address is valid then do it
             $mnl = PaymentMethod::where('payment_method', self::SLUG)->first();
@@ -323,7 +326,7 @@ class ManualModule implements PmInterface
             $mnl->description = $request->input('mnl_details');
             $mnl->status = $mnl_status;
             $mnl->data = json_encode($gateway_data);
-            
+
             if ($mnl->save()) {
                 $response['msg'] = 'success';
                 $response['message'] = __('messages.update.success', ['what' => 'Manual wallet payment info']);
