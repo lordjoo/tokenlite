@@ -137,13 +137,14 @@ class TokenController extends Controller
                     $ret['modal'] = '<a href="#" class="modal-close" data-dismiss="modal"><em class="ti ti-close"></em></a><div class="popup-body"><h3 class="alert alert-danger text-center">'.$msg.'</h3></div>';
                 }
             }else{
-                $ret['modal'] = '<a href="#" class="modal-close" data-dismiss="modal"><em class="ti ti-close"></em></a><div class="popup-body"><h3 class="alert alert-danger text-center">'.$this->handler->accessMessage().'</h3></div>';
+//                $ret['modal'] = '<a href="#" class="modal-close" data-dismiss="modal"><em class="ti ti-close"></em></a><div class="popup-body"><h3 class="alert alert-danger text-center">'.$this->handler->accessMessage().'</h3></div>';
             }
         } catch (\Exception $e) {
+            dd($e->getMessage());
             $ret['modal'] = '<a href="#" class="modal-close" data-dismiss="modal"><em class="ti ti-close"></em></a><div class="popup-body"><h3 class="alert alert-danger text-center">'.$this->handler->accessMessage().'</h3></div>';
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);
@@ -193,7 +194,7 @@ class TokenController extends Controller
             }
 
         }
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);

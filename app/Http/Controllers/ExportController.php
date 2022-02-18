@@ -44,7 +44,7 @@ class ExportController extends Controller
             $response['msg'] = 'warning';
             $response['status'] = 'die';
             $response['message'] = __('auth.health.save_action');
-            if ($request->ajax()) {
+            if ($request->ajax() || $request->acceptsJson()) {
                 return response()->json($response);
             }
             return back()->with([$response['msg'] => $response['message']]);
@@ -54,15 +54,15 @@ class ExportController extends Controller
             case 'transactions':
                 return $this->transactions($request, $type);
                 break;
-            
+
             case 'users':
                 return $this->users($request, $type);
                 break;
-            
+
             case 'kycs':
                 return $this->kycs($request, $type);
                 break;
-            
+
             default:
                 abort(404);
                 break;
@@ -213,7 +213,7 @@ class ExportController extends Controller
                 fclose($file);
             };
         }
-        
+
         return response()->stream($callback, 200, $headers);
     }
 

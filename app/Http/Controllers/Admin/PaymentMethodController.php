@@ -40,7 +40,7 @@ class PaymentMethodController extends Controller
         $gateway = PaymentMethod::Currency;
         $methods = $this->module->module_views();
 
-        // Init the currency rate 
+        // Init the currency rate
         $auto_check = get_setting('pmc_fx_ex' . 'rates', false);
         if($auto_check == false){
             $auto_rate = (new PaymentMethod())->automatic_rate_check(30, true);
@@ -117,7 +117,7 @@ class PaymentMethodController extends Controller
             $all_new_rate = $all_auto_rate = [];
 
             foreach (PaymentMethod::Currency as $code => $val) {
-                $codeU = strtoupper($code); 
+                $codeU = strtoupper($code);
                 $currency = strtolower($code);
                 $timeout = (int) $request->input('automatic_rate_time');
                 $timeout = ($timeout >=30 ) ? $timeout : 20;
@@ -148,7 +148,7 @@ class PaymentMethodController extends Controller
         }
 
         $response['link'] = null;
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($response);
         }
         return back()->with([$response['msg'] => $response['message']]);

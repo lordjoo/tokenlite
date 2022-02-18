@@ -13,6 +13,9 @@ namespace App\Models;
 use Auth;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method static where(string $string, $id)
+ */
 class UserMeta extends Model
 {
 

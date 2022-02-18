@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\User;
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserMeta;
@@ -17,12 +18,16 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function __construct()
+
+    protected $response, $handler,$module;
+    public function __construct(ApiResponse $response)
     {
         if( $this->hasKey() === false && !app()->runningInConsole()){
             throw new APIException("Provide valid access key", 401);
         }
         $this->middleware('auth:api', ['except' => ['login','register','reset']]);
+        $this->response = $response;
+
     }
     /**
      * Check the API key
@@ -44,11 +49,15 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:2|max:100',
             'email' => 'required|string|email|max:100|unique:users',
-            'password' => 'required|string|confirmed|min:6',
+            // password must be at least 8 characters long and no more than 100 and must contain at least one digit, one lowercase and one uppercase letter
+            'password' => 'required|string|confirmed|min:8|max:100|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/',
         ]);
 
         if($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return $this->response
+                ->setError($validator->errors()->toArray())
+                ->setStatusCode(422)
+                ->return();
         }
 
         $user = User::create([
@@ -63,18 +72,25 @@ class AuthController extends Controller
         if ($user) {
             $user->create_referral_or_not();
             $meta = UserMeta::create([ 'userId' => $user->id ]);
-            $type='user';
-            $meta->notify_admin = ($type=='user')?0:1;
+            $type = 'user';
+            $meta->notify_admin = ($type !== 'user');
+//                ? 0
+//                : 1;
             $meta->email_token = str_random(65);
             $cd = Carbon::now(); //->toDateTimeString();
             $meta->email_expire = $cd->copy()->addDays(3);
             $meta->save();
-            return response()->json([
-                'message' => 'User successfully registered',
-                'user' => $user
-            ], 201);
+
+            return $this->response
+                ->setMessage('User successfully registered')
+                ->withUser($user)
+                ->setStatusCode(201)
+                ->return();
         } else {
-            return response()->json(['message' => 'User could not be created'], 500);
+            return $this->response
+                ->error('User could not be created')
+                ->setStatusCode(500)
+                ->return();
         }
 
     }
@@ -91,13 +107,19 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
         if($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return $this->response
+                ->setError($validator->errors()->toArray())
+                ->setStatusCode(422)
+                ->return();
         }
 
         $credentials = request(['email', 'password']);
 
         if (!$token = auth('api')->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return $this->response
+                ->error('Unauthorized')
+                ->setStatusCode(401)
+                ->return();
         }
 
         return $this->respondWithToken($token);
@@ -111,7 +133,11 @@ class AuthController extends Controller
      */
     public function me(): JsonResponse
     {
-        return response()->json(auth('api')->user());
+//        return response()->json(auth('api')->user());
+        return $this->response
+            ->success('User successfully fetched')
+            ->withUser(auth('api')->user())
+            ->return();
     }
 
     /**
@@ -123,7 +149,10 @@ class AuthController extends Controller
     {
         auth('api')->logout();
 
-        return response()->json(['message' => 'Successfully logged out']);
+//        return response()->json(['message' => 'Successfully logged out']);
+        return $this->response
+            ->success('Successfully logged out')
+            ->return();
     }
 
     /**
@@ -145,28 +174,34 @@ class AuthController extends Controller
      */
     protected function respondWithToken($token): JsonResponse
     {
-        return response()->json([
+        return $this->response->setData([
             'user' => auth('api')->user(),
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL() * 60
-        ]);
+        ])->success()->return();
     }
 
     /* reset password function */
     public function reset()
     {
         $validator = Validator::make(request()->all(), [
-            'email' => 'required|string|email',
+            'email' => 'required|string|email|exists:users,email',
         ]);
         if($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return $this->response
+                ->setError($validator->errors()->toArray())
+                ->setStatusCode(422)
+                ->return();
         }
         # check if user exists
         $user = User::where('email', request()->email)->first();
 
         if (!$user) {
-            return response()->json(['message' => 'User does not exist'], 404);
+            return $this->response
+                ->error('User does not exist')
+                ->setStatusCode(404)
+                ->return();
         }
 
         $response = $this->broker()->sendResetLink(
@@ -175,8 +210,8 @@ class AuthController extends Controller
 
 
         return $response == Password::RESET_LINK_SENT
-            ? response()->json(['message' => 'Reset link sent'])
-            : response()->json(['message' => 'Reset link could not be sent',$response], 500);
+            ? $this->response->success(__('Reset link sent'))->return() //response()->json(['message' => 'Reset link sent'])
+            : $this->response->error(__('Reset link could not be sent'))->setStatusCode(500)->return();
     }
 
     /**

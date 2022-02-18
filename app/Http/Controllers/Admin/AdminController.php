@@ -271,7 +271,7 @@ class AdminController extends Controller
             }
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);
@@ -308,7 +308,7 @@ class AdminController extends Controller
 
             if ($validator->fails()) {
                 $error = ['msg' => 'warning', 'message' => $validator->errors()->first()];
-                if ($request->ajax()) {
+                if ($request->ajax() || $request->acceptsJson()) {
                     return response()->json($error);
                 }
                 return back()->with($error);
@@ -320,14 +320,14 @@ class AdminController extends Controller
             return redirect()->route('admin.system')->with($error);
         }
         if($request->skip && $request->skip=='reg'){
-            Cookie::queue(Cookie::make('ico_nio_reg_skip', 1, 1440)); 
+            Cookie::queue(Cookie::make('ico_nio_reg_skip', 1, 1440));
             $last = (int)get_setting('piks_ger_oin_oci', 0);
             add_setting('piks_ger_oin_oci', $last + 1);
             return redirect()->route('admin.home');
         }
         if($request->revoke && $request->revoke=='license'){
             delete_setting(['env_pcode','nio_lkey','nio_email','env_uname', 'env_ptype']);
-            add_setting('tokenlite_update', time()); add_setting('tokenlite_credible', str_random(48)); 
+            add_setting('tokenlite_update', time()); add_setting('tokenlite_credible', str_random(48));
             add_setting('site_api_secret', str_random(16));
             Cookie::queue(Cookie::forget('ico_nio_reg_skip'));
             return redirect()->route('admin.home');
@@ -405,7 +405,7 @@ class AdminController extends Controller
             $ret['msg'] = 'error';
             $ret['message'] = __('messages.form.wrong');
         }
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);

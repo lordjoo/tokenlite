@@ -110,7 +110,7 @@ class LanguageController extends Controller
             $result = $this->destroy($request);
         }
 
-        if ($request->ajax()) { return response()->json($result); }
+        if ($request->ajax() || $request->acceptsJson()) { return response()->json($result); }
         return back()->with([$result['msg'] => $result['message']]);
     }
 

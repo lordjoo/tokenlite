@@ -126,7 +126,6 @@ class TokenController extends Controller
      *
      * @version 1.1
      * @since 1.0
-     * @throws \Throwable
      */
     public function contribute_access()
     {
@@ -194,12 +193,58 @@ class TokenController extends Controller
                     'message' => $e->getMessage(),
                     'file' => $e->getFile(),
                     'line' => $e->getLine(),
-
                 ])
                 ->return();
         }
 
-        return $this->response->success()->return();
+    }
+
+
+
+    /**
+     * Make Payment
+     *
+     * @version 1.0.0
+     * @since 1.0
+     */
+    public function payment()
+    {
+        $request = request();
+        $ret['message'] = __('messages.nothing');
+
+        $validator = Validator::make($request->all(), [
+                'agree' => 'required',
+                'token_amount' => 'required',
+                'currency' => 'required',
+                'pay_option' => 'required',
+        ], [
+            'agree.required' => __('messages.agree'),
+            'token_amount.required' => __('messages.trnx.require_token'),
+            'currency.required' => __('messages.trnx.require_currency'),
+            'pay_option.required' => __('messages.trnx.select_method'),
+        ]);
+
+        if ($validator->fails()) {
+
+            return $this->response
+                ->setError($validator->errors()->toArray())
+                ->error('Invalid request',400)
+                ->return();
+        }else{
+
+            $request->request->add(['pp_token' => $request->token_amount, 'pp_currency' => $request->currency]);
+//            dd($request);
+            $type = strtolower($request->input('pay_currency'));
+            $method = strtolower($request->input('pay_option'));
+            $last = (int)get_setting('piks_ger_oin_oci', 0);
+            if( $this->handler->check_body() && $last <= 3 ){
+                return $this->response
+                    ->success(__('messages.trnx.manual.success'))
+                    ->setData($this->module->make_payment($method, $request))
+                    ->return();
+            }
+        }
+        return $this->response->setData($ret)->return();
     }
 
 
@@ -248,5 +293,7 @@ class TokenController extends Controller
             }
         }
     }
+
+
 
 }

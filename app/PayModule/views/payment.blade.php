@@ -1,5 +1,5 @@
 @php
-$pm_check = (!empty($currency, $_data) ? true : false);
+$pm_check = (!empty($methods) ? true : false);
 $dot_1 =  '.'; $dot_2 = '';
 if ($data->total_bonus > 0) {
     $dot_1 =  ''; $dot_2 = '.';

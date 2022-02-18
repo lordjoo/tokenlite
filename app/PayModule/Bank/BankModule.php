@@ -143,7 +143,7 @@ class BankModule implements PmInterface
                 $ret['msg'] = 'info';
                 $ret['message'] = __('Sorry, unable to proceed. Your payment amount is very low.');
 
-                if ($request->ajax()) {
+                if ($request->ajax() || $request->acceptsJson()) {
                     return response()->json($ret);
                 }
                 return redirect(route('user.token'))->with(['info' => $ret['message']]);
@@ -193,6 +193,8 @@ class BankModule implements PmInterface
                 $transaction = Transaction::where('id', $iid)->first();
                 $transaction->tnx_id = set_id($iid, 'trnx');
                 $transaction->save();
+                $response['transaction'] = $transaction;
+
 
                 IcoStage::token_add_to_account($transaction, 'add');
                 $mailed = ['notify' => 'order-placed', 'user' => 'submit-user', 'system' => 'placed-admin'];
@@ -204,7 +206,7 @@ class BankModule implements PmInterface
             }
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($response);
         }
         return back()->with([$response['msg'] => $response['message']]);

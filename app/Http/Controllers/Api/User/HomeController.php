@@ -65,11 +65,10 @@ class HomeController extends Controller
         $stage = active_stage();
         $contribution = Transaction::user_contribution();
         $tc = new \App\Helpers\TokenCalculate();
-//        $active_bonus = $tc->get_current_bonus('active');
 
         $base_cur = base_currency();
         $base_con = isset($contribution->$base_cur) ? to_num($contribution->$base_cur, 'auto')  : 0;
-        $base_out =  ($base_con > 0 ? $base_con : '~ ') . strtoupper($base_cur);
+        $base_out =  ($base_con > 0 ? $base_con." " : '~ ') . strtoupper($base_cur);
 
         $_CUR = base_currency(true);
         $_SYM = token_symbol();
@@ -81,7 +80,7 @@ class HomeController extends Controller
         if(gws('user_in_cur1', 'eth') != 'hide') {
             $cur1 = gws('user_in_cur1', 'eth');
             $cur1_con = (gws('pmc_active_'.$cur1) == 1) ? to_num($contribution->$cur1, 'auto') : 0;
-            $cur1_out = ($cur1 != $base_cur) ? ($cur1_con > 0 ? $cur1_con : '~ ')  . strtoupper($cur1): '';
+            $cur1_out = ($cur1 != $base_cur) ? ($cur1_con > 0 ? $cur1_con." " : '~ ')  . strtoupper($cur1): '';
         }
 
 
@@ -90,7 +89,7 @@ class HomeController extends Controller
         if(gws('user_in_cur2', 'btc')!='hide') {
             $cur2 = gws('user_in_cur2', 'btc');
             $cur2_con = (gws('pmc_active_'.$cur2) == 1) ? to_num($contribution->$cur2, 'auto') : 0;
-            $cur2_out = ($cur2 != $base_cur) ?  ($cur2_con > 0 ? $cur2_con : '~ '). strtoupper($cur2): '';
+            $cur2_out = ($cur2 != $base_cur) ?  ($cur2_con > 0 ? $cur2_con." " : '~ '). strtoupper($cur2): '';
         }
 
 

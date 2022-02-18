@@ -116,7 +116,7 @@ class IcoController extends Controller
             }
         }
 
-        if ($request->ajax()) { return response()->json($ret); }
+        if ($request->ajax() || $request->acceptsJson()) { return response()->json($ret); }
         return back()->with([$ret['msg'] => $ret['message']]);
     }
 
@@ -147,7 +147,7 @@ class IcoController extends Controller
 
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);
@@ -172,7 +172,7 @@ class IcoController extends Controller
                 $stage->status = ($request->input('type') == 'resume_stage')?'active':'paused';
                 $stage->save();
 
-                $status = ($stage->status == 'active') ? 'Resume' : (($stage->status == 'paused') ? 'Paused' : ""); 
+                $status = ($stage->status == 'active') ? 'Resume' : (($stage->status == 'paused') ? 'Paused' : "");
                 $ret['msg'] = 'success';
                 $ret['message'] = __('messages.stage_update', ['status' => $status]);
             }
@@ -182,7 +182,7 @@ class IcoController extends Controller
             }
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);
@@ -276,7 +276,7 @@ class IcoController extends Controller
             }
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);
@@ -321,7 +321,7 @@ class IcoController extends Controller
                     $ret['message'] = $validator->errors()->first();
                     return response()->json($ret);
                 }
-                
+
                 if($in && $price <= 0) {
                     $ret['msg'] = 'warning';
                     $ret['message'] = 'Token price should be grater than 0. (In Tier '.$i.')';
@@ -419,7 +419,7 @@ class IcoController extends Controller
         }
 
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);
@@ -485,11 +485,11 @@ class IcoController extends Controller
             Setting::updateValue('token_price_show', $token_price);
             Setting::updateValue('token_number_format', $token_format);
             Setting::updateValue('token_before_kyc', $before_kyc);
-            
+
             $cur_codes = [
                 'usd', 'btc', 'eth', 'ltc', 'eur', 'gbp', 'xrp', 'xlm', 'bch', 'bnb', 'usdt', 'trx', 'try', 'rub', 'cad',
-                'aud', 'inr',  'ngn', 'usdc', 'dash', 'brl', 'nzd', 'pln', 'jpy', 'myr', 'idr', 'waves', 'xmr', 'mxn', 
-                'php', 'chf', 'thb', 'sgd', 'czk', 'nok', 'zar', 'sek', 'kes', 'nad', 'dkk', 'hkd', 'huf', 'pkr', 
+                'aud', 'inr',  'ngn', 'usdc', 'dash', 'brl', 'nzd', 'pln', 'jpy', 'myr', 'idr', 'waves', 'xmr', 'mxn',
+                'php', 'chf', 'thb', 'sgd', 'czk', 'nok', 'zar', 'sek', 'kes', 'nad', 'dkk', 'hkd', 'huf', 'pkr',
                 'egp', 'clp', 'cop', 'jmd', 'busd', 'ada', 'doge', 'sol', 'uni', 'link', 'cake',
             ];
 
@@ -549,7 +549,7 @@ class IcoController extends Controller
             $ret['message'] = __('messages.update.success', ['what' => 'User Panel Settings']);
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);

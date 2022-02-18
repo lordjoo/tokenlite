@@ -51,7 +51,7 @@ class BankController extends Controller
             if (empty($tnxns)) {
                 $response['msg'] = 'error';
                 $response['message'] = __("messages.trnx.notfound");
-                if ($request->ajax()) {
+                if ($request->ajax() || $request->acceptsJson()) {
                     return response()->json($response);
                 }
                 return back()->with([$response['msg'] => $response['message']]);
@@ -88,7 +88,7 @@ class BankController extends Controller
             }
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($response);
         }
         return back()->with([$response['msg'] => $response['message']]);

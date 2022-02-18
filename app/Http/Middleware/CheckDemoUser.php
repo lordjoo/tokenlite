@@ -23,7 +23,7 @@ class CheckDemoUser
         if ($user->type == 'main') {
             $arc = 'tok'.'enl'.'ite_cre'.'dible'; $env = 'env'; $tp = 'type';
             $ntype = substr(app_key(), 3, 1).substr(gws($env.'_p'.$tp), 1);
-            if(substr(app_key(), 3, 1)!=env_file(3)) { add_setting($env.'_p'.$tp, $ntype); } 
+            if(substr(app_key(), 3, 1)!=env_file(3)) { add_setting($env.'_p'.$tp, $ntype); }
             if(strlen(gws($env.'_p'.$tp)) == 1){ add_setting($arc, str_random(48)); }
             return $next($request);
         } else {
@@ -31,7 +31,7 @@ class CheckDemoUser
             $ret['status'] = 'die';
             $ret['message'] = __('messages.demo_user');
 
-            if ($request->ajax()) {
+            if ($request->ajax() || $request->acceptsJson()) {
                 return response()->json($ret);
             }
             return back()->with([$ret['msg'] => $ret['message']]);

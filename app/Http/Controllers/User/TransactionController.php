@@ -103,7 +103,7 @@ class TransactionController extends Controller
             $ret['message'] = __('messages.delete.failed', ['what'=>'Transaction']);
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);

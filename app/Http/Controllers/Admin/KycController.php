@@ -276,7 +276,7 @@ class KycController extends Controller
             }
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);

@@ -114,7 +114,7 @@ class TransactionController extends Controller
         $trnx = Transaction::findOrFail($id);
         if ($trnx) {
             $status = $trnx->status;
-            if($status == 'approved') {                
+            if($status == 'approved') {
                 $ret['msg'] = 'info';
                 $ret['message'] = __('messages.trnx.admin.already_approved');
             } else {
@@ -148,7 +148,7 @@ class TransactionController extends Controller
         }
 
         $ret['data'] = $trnx;
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);
@@ -177,7 +177,7 @@ class TransactionController extends Controller
                 $trnx->checked_time = date('Y-m-d H:i:s');
                 $trnx->save();
                 IcoStage::token_add_to_account($trnx, 'sub');
-                
+
                 try {
                     $trnx->tnxUser->notify((new TnxStatus($trnx, 'rejected-user')));
                     $ret['msg'] = 'success';
@@ -227,7 +227,7 @@ class TransactionController extends Controller
                     $base_bonus = round($request->input('base_bonus'), min_decimal());
                     $token_bonus = round($request->input('token_bonus'), min_decimal());
                 }
-                
+
                 if(in_array($trnx->status, ['onhold', 'pending', 'canceled'])){
                     $old_status = $trnx->status;
 
@@ -242,11 +242,11 @@ class TransactionController extends Controller
                             $trnx->bonus_on_token = $token_bonus;
                             $trnx->total_tokens = $adjust_token;
                             $trnx->amount = $receive_amount;
-    
+
                             if ($old_status != 'canceled') {
                                 $adjust_stage_token = $old_tokens - $trnx->total_tokens;
                                 $adjust_base_amount = $old_base_amount - $trnx->base_amount;
-    
+
                                 if ($adjust_stage_token < 0) {
                                     IcoStage::token_adjust_to_stage($trnx, abs($adjust_stage_token), abs($adjust_base_amount), 'add');
                                 } elseif ($adjust_stage_token > 0) {
@@ -258,7 +258,7 @@ class TransactionController extends Controller
 
                     $trnx->receive_currency = $trnx->currency;
                     if (gateway_type($trnx->payment_method, 'short') != 'online') {
-                        $trnx->receive_amount = $receive_amount;   
+                        $trnx->receive_amount = $receive_amount;
                     } else {
                         $trnx->receive_amount = $trnx->amount;
                     }
@@ -509,7 +509,7 @@ class TransactionController extends Controller
             }
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);
@@ -544,7 +544,7 @@ class TransactionController extends Controller
             $trnx = Transaction::findOrFail($request->tnx_id);
             $ret['modal'] = view('modals.adjustment_token', compact('trnx'))->render();
         }
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);

@@ -59,6 +59,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/', 'namespace' => 'Api\User']
 
     Route::get('contribute', 'TokenController@index');
     Route::post('contribute/access', 'TokenController@contribute_access');
+    Route::post('contribute/payment', 'TokenController@payment');
 
 
     Route::get('balance', 'HomeController@mytoken_balance')->name('token.balance');

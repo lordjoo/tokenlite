@@ -115,7 +115,7 @@ class UsersController extends Controller
                 $ret['message'] = __('messages.mail.failed');
             }
 
-            if ($request->ajax()) {
+            if ($request->ajax() || $request->acceptsJson()) {
                 return response()->json($ret);
             }
             return back()->with([$ret['msg'] => $ret['message']]);
@@ -209,7 +209,7 @@ class UsersController extends Controller
                 }
             }
 
-            if ($request->ajax()) {
+            if ($request->ajax() || $request->acceptsJson()) {
                 return response()->json($ret);
             }
             return back()->with([$ret['msg'] => $ret['message']]);
@@ -266,7 +266,7 @@ class UsersController extends Controller
     {
         $id = $request->input('uid');
         $type = $request->input('req_type');
-        
+
         if(!super_access()) {
             $up = User::where('id', $id)->first();
             if($up) {
@@ -396,7 +396,7 @@ class UsersController extends Controller
             $ret['message'] = __('messages.wallet.failed');
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);
@@ -438,7 +438,7 @@ class UsersController extends Controller
         }
 
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);

@@ -52,7 +52,7 @@ class ManualController extends Controller
             if (empty($tnxns)) {
                 $response['msg'] = 'error';
                 $response['message'] = __("messages.trnx.notfound");
-                if ($request->ajax()) {
+                if ($request->ajax() || $request->acceptsJson()) {
                     return response()->json($response);
                 }
                 return back()->with([$response['msg'] => $response['message']]);
@@ -93,7 +93,7 @@ class ManualController extends Controller
                             $response['message'] = __('messages.trnx.reviewing');
                             $response['modal'] = view('modals.payment-review', compact('tnxns'))->render();
                         }
-                    } 
+                    }
                     else {
                         $response['msg'] = 'warning';
                         $response['message'] = __('messages.invalid.address');
@@ -120,7 +120,7 @@ class ManualController extends Controller
             }
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($response);
         }
         return back()->with([$response['msg'] => $response['message']]);

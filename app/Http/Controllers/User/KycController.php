@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Hash;
 
 class KycController extends Controller
 {
-    // Enable recaptcha to the public form 
+    // Enable recaptcha to the public form
     use ReCaptcha;
 
     private $supported_ext = ['jpeg', 'jpg', 'png', 'pdf'];
@@ -82,7 +82,7 @@ class KycController extends Controller
         }
 
         $filename = KYC::FindOrFail($id)->document;
-        
+
         if ($doc == 2) {
             $filename = KYC::FindOrFail($id)->document2;
         }
@@ -171,25 +171,25 @@ class KycController extends Controller
 
             $retError = ['msg' => 'error', 'message' => __('Invalid document, only JPEG, PNG and PDF files are allowed.')];
             if (!empty($doc1) && !valid_kyc_file_ext($doc1, $this->supported_ext)) {
-                if ($request->ajax()) {
+                if ($request->ajax() || $request->acceptsJson()) {
                     return response()->json($retError);
                 }
                 return back()->with([$retError['msg'] => $retError['message']]);
             }
             if (!empty($doc2) && !valid_kyc_file_ext($doc2, $this->supported_ext)) {
-                if ($request->ajax()) {
+                if ($request->ajax() || $request->acceptsJson()) {
                     return response()->json($retError);
                 }
                 return back()->with([$retError['msg'] => $retError['message']]);
             }
             if (!empty($doc3) && !valid_kyc_file_ext($doc3, $this->supported_ext)) {
-                if ($request->ajax()) {
+                if ($request->ajax() || $request->acceptsJson()) {
                     return response()->json($retError);
                 }
                 return back()->with([$retError['msg'] => $retError['message']]);
             }
             if ((!empty($doc1) && str_contains($doc1, "../")) || (!empty($doc2) && str_contains($doc2, "../")) || (!empty($doc3) && str_contains($doc3, "../"))) {
-                if ($request->ajax()) {
+                if ($request->ajax() || $request->acceptsJson()) {
                     return response()->json($retError);
                 }
                 return back()->with([$retError['msg'] => $retError['message']]);
@@ -267,7 +267,7 @@ class KycController extends Controller
                 $ret['msg'] = 'warning';
                 $ret['message'] = __('messages.invalid.address');
             }
-            if ($request->ajax()) {
+            if ($request->ajax() || $request->acceptsJson()) {
                 return response()->json($ret);
             }
             return back()->with([$ret['msg'] => $ret['message']]);

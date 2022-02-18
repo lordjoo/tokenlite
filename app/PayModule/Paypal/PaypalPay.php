@@ -130,12 +130,12 @@ class PaypalPay
             $ret['msg'] = 'info';
             $ret['message'] = __('Sorry, unable to proceed. Your payment amount is very low.');
 
-            if ($request->ajax()) {
+            if ($request->ajax() || $request->acceptsJson()) {
                 return response()->json($ret);
             }
             return redirect(route('user.token'))->with(['info' => $ret['message']]);
         }
-        
+
         $trnx_data = [
             'token' => round($token, min_decimal()),
             'bonus_on_base' => round($calc_token['bonus-base'], min_decimal()),
@@ -202,12 +202,12 @@ class PaypalPay
                 Transaction::where('id', $iid)->delete();
             }
 
-            if ($request->ajax()) {
+            if ($request->ajax() || $request->acceptsJson()) {
                 return response()->json($ret);
             }
             return redirect($payment->getApprovalLink());
         } catch (HttpException $ex) {
-            if ($request->ajax()) {
+            if ($request->ajax() || $request->acceptsJson()) {
                 $ret['msg'] = 'info';
                 $ret['message'] = !empty($ex->getMessage()) ? $ex->getMessage() : 'Unable to connect with PayPal.';
                 if (!empty($ex->getMessage())) {

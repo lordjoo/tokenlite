@@ -150,7 +150,7 @@ class UserController extends Controller
             $ret['msg'] = 'warning';
             $ret['message'] = __('messages.form.wrong');
         }
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);
@@ -457,7 +457,7 @@ class UserController extends Controller
             }
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->acceptsJson()) {
             return response()->json($ret);
         }
         return back()->with([$ret['msg'] => $ret['message']]);

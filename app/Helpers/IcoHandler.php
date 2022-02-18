@@ -44,7 +44,7 @@ class IcoHandler
                     $response['status'] = 'die';
                     $response['message'] = __('auth.health.save_action');
 
-                    if ($request->ajax()) {
+                    if ($request->ajax() || $request->acceptsJson()) {
                         return response()->json($response);
                     }
                     return back()->with([$response['msg'] => $response['message']]);
@@ -235,14 +235,14 @@ class IcoHandler
                     add_setting('reg_fall_queue', 0);
                     Cookie::queue(Cookie::forget('appsreg_fall'));
                     $text = $result->message;
-                    if($request->ajax()){
+                     if ($request->ajax() || $request->acceptsJson()){
                         return response()->json(['status' => true, 'msg' => 'success', 'message' => $result->message, 'data' => $result, 'text' => $text]);
                     }
                     return back()->with(['msg' => 'success', 'message' => $result->message, 'data' => $result]);
                 }else{
                     add_setting('reg_fall_queue', $queue + 1);
                     if($queue>=3) { Cookie::queue(Cookie::make('appsreg_fall', 1, (($queue > 10) ? 30 : 4))); }
-                    if($request->ajax()){
+                     if ($request->ajax() || $request->acceptsJson()){
                         return response()->json(['status' => false, 'msg' => 'warning', 'message' => $result->message, 'data' => $result]);
                     }
                     return back()->with(['msg' => 'warning', 'message' => $result->message, 'data' => $result]);
@@ -250,7 +250,7 @@ class IcoHandler
             }else{
                 $time = get_setting($lite.'_update', time() + 3600);
                 add_setting($lite.'_update', $time);
-                if($request->ajax()){
+                 if ($request->ajax() || $request->acceptsJson()){
                     return response()->json(['status' => false, 'msg' => 'warning', 'message' => "Please connect to the Internet"]);
                 }
                 return back()->with(['msg' => 'warning', 'message' => "Please connect to the Internet"]);
@@ -259,7 +259,7 @@ class IcoHandler
             if(serverOpenOrNot()){
             $time = get_setting($lite.'_update', time() + 3600);
             add_setting($lite.'_update', $time);}
-            if($request->ajax()){
+             if ($request->ajax() || $request->acceptsJson()){
                 return response()->json(['msg' => 'error', 'message' => 'Something is wrong, please try again.', 'error' => $e->getMessage()]);
             }
             return back()->with(['msg' => 'error', 'message' => 'Something is wrong, please try again.']);

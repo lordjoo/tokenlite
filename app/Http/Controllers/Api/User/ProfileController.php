@@ -65,13 +65,11 @@ class ProfileController extends Controller
 
     public function change_password()
     {
-        //todo
-        /*DONT FORGET TO MAKE PASSWORD VALIDATION!!!!!!*/
         $request = request();
         //validate data
         $validator = Validator::make($request->all(), [
             'old_password' => 'required|min:6',
-            'new_password' => 'required|min:6|confirmed',
+            'new_password' => 'required|string|confirmed|min:8|max:100|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/',
         ]);
         if ($validator->fails()) {
             if ($validator->fails()) {
@@ -95,8 +93,9 @@ class ProfileController extends Controller
                         $user->notify(new PasswordChange($user, $userMeta));
                         return $this->response->success(__('messages.password.changed'))->return();
                     } catch (\Exception $e) {
-                        return $this->response->error(__('messages.email.password_change',
-                            ['email' => get_setting('site_email')]))->return();
+                        return $this->response->error(
+                            __('messages.email.password_change', ['email' => get_setting('site_email')])
+                        )->return();
                     }
                 } else {
                     return $this->response->error(__('messages.form.wrong'))->return();
