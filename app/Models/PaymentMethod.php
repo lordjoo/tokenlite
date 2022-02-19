@@ -254,12 +254,20 @@ class PaymentMethod extends Model
      */
     public static function automatic_rate($base = null, $force = false)
     {
+        $rates = self::getLiveRates($base);
+        if(!is_array($rates)){
+            $rates = json_decode($rates, true);
+        }
         if($force === true) {
-            return self::getLiveRates($base);
+            return $rates;
         }
 
         return Cache::remember('exchange_rates', ((int) get_setting('pm_automatic_rate_time', 60) * self::Timeout), function() use ($base){
-            return self::getLiveRates($base);
+            $rates = self::getLiveRates($base);
+            if(!is_array($rates)){
+                $rates = json_decode($rates, true);
+            }
+            return $rates;
         });
     }
 
