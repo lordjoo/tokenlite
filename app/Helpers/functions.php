@@ -2406,14 +2406,15 @@ if (!function_exists('style_theme')) {
             $admin_color = '#ff812d';
         }
 
-        $stylesheets = [
-            'vendor' => 'assets/css/vendor.bundle.css',
-            'base' => 'assets/css/style.css',
-            'admin' => 'assets/css/'.$a_sheet.'.css',
+        $rtl = (app()->getLocale() == 'ar' ) ? '/rtl' : '';
+        $stylesheets = array(
+            'vendor' => "assets/css$rtl/vendor.bundle.css",
+            'base' => "assets/css/style.css",
+            'admin' => "assets/css$rtl/".$a_sheet.'.css',
             'admin-color' => $admin_color,
-            'user' => 'assets/css/'.$u_sheet.'.css',
-            'custom' => 'css/custom.css',
-        ];
+            'user' => "assets/css$rtl/".$u_sheet.'.css',
+            'custom' => "css$rtl/custom.css",
+        );
 
         $style = (isset($stylesheets[$panel])) ? $stylesheets[$panel] : $stylesheets['base'];
         return ($ver) ? $style.css_js_ver() : $style;

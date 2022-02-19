@@ -56,6 +56,8 @@ Route::group(['middleware' => 'api', 'prefix' => '/', 'namespace' => 'Api\User']
     // home
     Route::get('home', 'HomeController@index')->name('home');
 
+    Route::get('transactions', 'TransactionController@index')->name('transactions');
+
 
     Route::get('contribute', 'TokenController@index');
     Route::post('contribute/access', 'TokenController@contribute_access');

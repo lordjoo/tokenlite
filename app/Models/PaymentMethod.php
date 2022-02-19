@@ -181,6 +181,7 @@ class PaymentMethod extends Model
 
             $exrate = self::automatic_rate();
             if (!empty($exrate)) {
+                dd($exrate);
                 Setting::updateValue('pmc_fx_' . 'exrates', json_encode($exrate));
             }
 

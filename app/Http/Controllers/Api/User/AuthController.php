@@ -112,13 +112,15 @@ class AuthController extends Controller
                 ->setStatusCode(422)
                 ->return();
         }
-
         $credentials = request(['email', 'password']);
-
         if (!$token = auth('api')->attempt($credentials)) {
             return $this->response
-                ->error('Unauthorized')
-                ->setStatusCode(401)
+                ->error('Unauthorized', 401)
+                ->return();
+        }
+        if (auth('api')->user()->email_verified_at == NULL) {
+            return $this->response
+                ->error('Your email address is not verified.',403)
                 ->return();
         }
 
