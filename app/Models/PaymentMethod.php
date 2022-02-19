@@ -181,7 +181,9 @@ class PaymentMethod extends Model
 
             $exrate = self::automatic_rate();
             if (!empty($exrate)) {
-                dd($exrate);
+                if (!is_array($exrate)) {
+                    $exrate = json_decode($exrate, true);
+                }
                 Setting::updateValue('pmc_fx_' . 'exrates', json_encode($exrate));
             }
 
@@ -254,20 +256,12 @@ class PaymentMethod extends Model
      */
     public static function automatic_rate($base = null, $force = false)
     {
-        $rates = self::getLiveRates($base);
-        if(!is_array($rates)){
-            $rates = json_decode($rates, true);
-        }
         if($force === true) {
-            return $rates;
+            return self::getLiveRates($base);
         }
 
         return Cache::remember('exchange_rates', ((int) get_setting('pm_automatic_rate_time', 60) * self::Timeout), function() use ($base){
-            $rates = self::getLiveRates($base);
-            if(!is_array($rates)){
-                $rates = json_decode($rates, true);
-            }
-            return $rates;
+            return self::getLiveRates($base);
         });
     }
 
