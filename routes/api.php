@@ -60,15 +60,18 @@ Route::group(['middleware' => 'api', 'prefix' => '/', 'namespace' => 'Api\User']
     Route::get('transactions', 'TransactionController@index')->name('transactions');
 
 
-    Route::get('contribute', 'TokenController@index');
+    Route::get ('contribute', 'TokenController@index');
     Route::post('contribute/access', 'TokenController@contribute_access');
     Route::post('contribute/payment', 'TokenController@payment');
+
+    Route::get('activity', 'HomeController@account_activity')->name('activity');
+    Route::post('activity/clear', 'HomeController@clear_activity')->name('activity.clear');
 
 
     Route::get('balance', 'HomeController@mytoken_balance')->name('token.balance');
 
     // profile
-    Route::get('profile', 'ProfileController@index')->name('profile');
+    Route::get ('profile', 'ProfileController@index')->name('profile');
     Route::post('profile/update', 'ProfileController@update_profile')->name('update');
     Route::post('profile/changePassword', 'ProfileController@change_password')->name('changePass');
 });

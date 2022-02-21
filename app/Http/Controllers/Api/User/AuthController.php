@@ -6,13 +6,16 @@ use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserMeta;
+use App\Notifications\ConfirmEmail;
 use App\Notifications\ResetPassword;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Exceptions\APIException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 
@@ -66,8 +69,10 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'lastLogin' => date('Y-m-d H:i:s'),
             'role' => 'user',
-
+            'email_verified_at'=>null
         ]);
+
+
 
         if ($user) {
             $user->create_referral_or_not();
@@ -81,10 +86,16 @@ class AuthController extends Controller
             $meta->email_expire = $cd->copy()->addDays(3);
             $meta->save();
 
+            if ($user->email_verified_at == null) {
+                try {
+                    $user->notify(new ConfirmEmail($user));
+                } catch (\Exception $e) {
+                    Log::error($e->getMessage());
+                }
+            }
             return $this->response
-                ->setMessage('User successfully registered')
-                ->withUser($user)
-                ->setStatusCode(201)
+                ->success('User successfully registered')
+                ->withUser($user->unsetRelation('meta'))
                 ->return();
         } else {
             return $this->response

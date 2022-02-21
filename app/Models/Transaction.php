@@ -11,6 +11,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent;
 use Illuminate\Http\Request;
 use App\Models\PaymentMethod;
 use Illuminate\Database\Eloquent\Model;
@@ -23,7 +24,12 @@ class Transaction extends Model
      */
     protected $table = 'transactions';
 
-    protected $fillable = ['tnx_id', 'tnx_type', 'tnx_time', 'tokens', 'bonus_on_base', 'bonus_on_token', 'total_bonus', 'total_tokens', 'stage', 'user', 'amount', 'receive_amount', 'receive_currency', 'base_amount', 'base_currency', 'base_currency_rate', 'currency', 'currency_rate', 'all_currency_rate', 'wallet_address', 'payment_method', 'payment_id', 'payment_to', 'checked_by', 'added_by', 'checked_time', 'details', 'extra', 'status', 'dist'
+    protected $fillable = [
+        'tnx_id', 'tnx_type', 'tnx_time', 'tokens', 'bonus_on_base', 'bonus_on_token', 'total_bonus', 'total_tokens', 'stage', 'user', 'amount', 'receive_amount', 'receive_currency', 'base_amount', 'base_currency', 'base_currency_rate', 'currency', 'currency_rate', 'all_currency_rate', 'wallet_address', 'payment_method', 'payment_id', 'payment_to', 'checked_by', 'added_by', 'checked_time', 'details', 'extra', 'status', 'dist'
+    ];
+
+    protected $appends = [
+        'status_color'
     ];
 
     /**
@@ -91,14 +97,14 @@ class Transaction extends Model
     {
         return $this->belongsTo(IcoStage::class, 'stage', 'id');
     }
-    
+
     /**
      *
      * Get transaction by on current user
      *
      * @version 1.0.0
      * @since 1.1.2
-     * @return \Illuminate\Database\Eloquent
+     * @return Eloquent
      */
     public static function get_by_own($where=null, $where_not=null) {
         // $return = (empty($where)) ? self::has('user_tnx') : self::has('user_tnx')->where($where);
@@ -111,14 +117,14 @@ class Transaction extends Model
         }
         return $by_user;
     }
-    
+
     /**
      *
      * Get transaction by user
      *
      * @version 1.0.0
      * @since 1.1.2
-     * @return \Illuminate\Database\Eloquent
+     * @return Eloquent
      */
     public static function by_user($user, $where=null, $where_not=null) {
         $by_user = self::where('user', $user);
@@ -130,14 +136,14 @@ class Transaction extends Model
         }
         return $by_user;
     }
-    
+
     /**
      *
      * Get transaction by stage
      *
      * @version 1.0.0
      * @since 1.1.2
-     * @return \Illuminate\Database\Eloquent
+     * @return Eloquent
      */
     public static function by_stage($stage, $where=null, $where_not=null) {
         $by_stage = self::where('stage', $stage);
@@ -149,14 +155,14 @@ class Transaction extends Model
         }
         return $by_stage;
     }
-    
+
     /**
      *
      * Get transaction by type
      *
      * @version 1.0.0
      * @since 1.1.2
-     * @return \Illuminate\Database\Eloquent
+     * @return Eloquent
      */
     public static function by_type($type, $where=null, $where_not=null) {
         $by_type = self::where('tnx_type', $type);
@@ -168,14 +174,14 @@ class Transaction extends Model
         }
         return $by_type;
     }
-    
+
     /**
      *
      * Get transaction by type
      *
      * @version 1.0.0
      * @since 1.1.2
-     * @return \Illuminate\Database\Eloquent
+     * @return Eloquent
      */
     public static function by_status($status, $where=null, $where_not=null) {
         $by_status = self::where('status', $status);
@@ -256,7 +262,7 @@ class Transaction extends Model
     }
 
     /**
-    * Date filter value set for search 
+    * Date filter value set for search
     *
     * @version 1.0.0
     * @since 1.1.0
@@ -310,7 +316,7 @@ class Transaction extends Model
                 $last->today()->subDay()->endOfDay()
             ];
         }
-        
+
         if($get_date == '90day'){
             $first = new Carbon();
             $last = new Carbon();
@@ -537,7 +543,7 @@ class Transaction extends Model
             $user_tnx = self::get_by_own(['status'=>'approved','refund'=>null])->whereNotIn('tnx_type', ['refund','withdraw','transfer'])->get();
             $user_wd = self::get_by_own(['tnx_type' => 'withdraw'])->get();
             $user_tf = self::get_by_own(['tnx_type' => 'transfer'])->get();
-            
+
             $wd_pending = $user_wd->where('status', 'pending')->sum('total_tokens');
             $ts_pending = $user_tf->where('status', 'pending')->sum('total_tokens');
 
@@ -556,7 +562,7 @@ class Transaction extends Model
                 'transfer'      => $user_tf->where('status', 'approved')->sum('tokens'),
                 'pending'       => ($wd_pending + $ts_pending)
             ];
-            return $balance_sum; 
+            return $balance_sum;
 
         } elseif($type='stages') {
             $get_stages = IcoStage::with([ 'tnx_by_user'=> function($q) { $q->where(['refund' => null, 'status' => 'approved'])->whereNotIn('tnx_type', ['refund'])->has('user_tnx'); } ])->get();
@@ -579,12 +585,12 @@ class Transaction extends Model
             }
             return $stages_sum;
         }
-        return false;        
+        return false;
     }
 
     /**
      *
-     * Transaction in Sumation 
+     * Transaction in Sumation
      *
      * @version 1.0
      * @since 1.1.2
@@ -600,5 +606,18 @@ class Transaction extends Model
             }
         }
         return $amounts;
+    }
+
+
+    public function getStatusColorAttribute()
+    {
+        if ($this->attributes['status'] == 'pending'){
+            return 'yellow';
+        } elseif ($this->attributes['status'] == 'approved') {
+            return 'green';
+        } else{ // ($this->attributes['status'] == 'cancelled')
+            return 'red';
+        }
+
     }
 }

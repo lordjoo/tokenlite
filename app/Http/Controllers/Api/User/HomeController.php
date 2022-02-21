@@ -6,6 +6,7 @@ use App\Helpers\ApiResponse;
 use App\Helpers\IcoHandler;
 use App\Helpers\TokenCalculate as TC;
 use App\Http\Controllers\Controller;
+use App\Models\Activity;
 use App\Models\GlobalMeta;
 use App\Models\PaymentMethod;
 use App\Models\Setting;
@@ -256,5 +257,25 @@ class HomeController extends Controller
             ->return();
     }
 
+
+    public function account_activity()
+    {
+        $user = request()->user();
+        $activities = Activity::where('user_id', $user->id)->orderBy('created_at', 'DESC')->limit(50)->get();
+        return $this->response
+            ->setData($activities)
+            ->success()
+            ->return();
+    }
+
+
+    public function clear_activity()
+    {
+        $user = request()->user();
+        Activity::where('user_id', $user->id)->delete();
+        return $this->response
+            ->success()
+            ->return();
+    }
 
 }
