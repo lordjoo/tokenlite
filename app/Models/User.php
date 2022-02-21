@@ -24,6 +24,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  * @property mixed walletAddress
  * @method static create(array $array)
  * @method static where(string $string, $value)
+ * @method static FindOrFail(int|null $id)
  */
 class User extends Authenticatable implements JWTSubject // implements MustVerifyEmail
 {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\User;
 
 use App\Helpers\ApiResponse;
+use App\Helpers\IcoHandler;
 use App\Helpers\TokenCalculate as TC;
 use App\Http\Controllers\Controller;
 use App\Models\GlobalMeta;
@@ -32,9 +33,10 @@ class HomeController extends Controller
     /**
      * @throws APIException
      */
-    public function __construct(ApiResponse $response)
+    public function __construct(ApiResponse $response,IcoHandler $handler)
     {
         $this->response = $response;
+        $this->handler = $handler;
 
         if( $this->hasKey() === false && !app()->runningInConsole()){
             throw new APIException("Provide valid access key", 401);
@@ -175,6 +177,54 @@ class HomeController extends Controller
             ->withUser($user)
             ->success()
             ->return();
+
+    }
+
+//    addWalletAddress
+    public function addWalletAddress()
+    {
+        // example:
+        // wallet_name: bitcoin
+        // wallet_address: 11
+
+        $request = request();
+        $wallet = field_value_text('kyc_wallet_opt', 'wallet_opt');
+
+        $validator = Validator::make($request->all(), [
+            'wallet_name' => 'required|in:'.implode(',', $wallet),
+            'wallet_address' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response
+                ->setError($validator->errors()->toArray())
+                ->error('Invalid request',400)
+                ->return();
+        }
+
+        $is_valid = $this->handler->validate_address($request->input('wallet_address'), $request->input('wallet_name'));
+
+
+        if ($is_valid) {
+            $user = request()->user();
+            $user->walletType = $request->input('wallet_name');
+            $user->walletAddress = $request->input('wallet_address');
+            $user_saved = $user->save();
+
+            if ($user_saved) {
+                return $this->response
+                    ->success(__('messages.update.success', ['what' => 'Wallet']))
+                    ->return();
+            }
+            return $this->response
+                    ->error('Error',500)
+                    ->return();
+
+        } else {
+            return $this->response
+                ->error('Invalid wallet address',400)
+                ->return();
+        }
 
     }
 

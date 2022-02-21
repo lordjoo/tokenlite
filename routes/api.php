@@ -53,6 +53,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/', 'namespace' => 'Api\User']
         Route::post('me', 'AuthController@me');
 
     });
+    Route::post('wallet/create','HomeController@addWalletAddress')->name('addWalletAddress');
     // home
     Route::get('home', 'HomeController@index')->name('home');
 
